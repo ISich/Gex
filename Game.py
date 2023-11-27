@@ -15,6 +15,7 @@ class Game():
         self.table_size = table_size
         self.hexagon_size = 30 - int(max(table_size - 7, 0) * 2.5)
         self.window = pygame.display.set_mode((self.x_size, self.y_size), pygame.RESIZABLE)
+        self.time = 5000
         pygame.display.set_caption("Gex")
 
         self.table_size = table_size
@@ -28,6 +29,8 @@ class Game():
     def start_game(self):
         run = True
         turn = 1
+        turn_time = pygame.time.get_ticks()
+        winner = "Никто не"
         while run:
             for event in pygame.event.get():
                 res = [-1, -1]
@@ -60,6 +63,9 @@ class Game():
                             self.update_scores(turn, self.bot)
                             run = False
                         turn *= -1
+                        turn_time = pygame.time.get_ticks()
+            if pygame.time.get_ticks() - turn_time > self.time:
+                run = False
 
             self.window.fill((255, 255, 255))
             self.draw_hexagons(self.window, self.table.table, self.hexagon_size+20)
@@ -124,6 +130,8 @@ class Game():
                     cur_color = (0, 0, 255)
                 elif i[1] == -1:
                     cur_color = (255, 0, 0)
+                elif i[1] == 2:
+                    cur_color = (0, 255, 0)
                 self.draw_hexagon(surface, cur_color, i[0], self.hexagon_size)
         width = 4
         up = [hexagons[0][0][0][0], hexagons[0][0][0][1] - side]
@@ -144,7 +152,6 @@ class Game():
             y = center[1] + size * math.sin(angle_rad)
             points.append((x, y))
         pygame.draw.polygon(surface, color, points)
-
 
     def is_inside_hexagons(self, x, y, hexagons):
         for i in range(len(hexagons)):
@@ -172,7 +179,6 @@ class Game():
                 ind += 2
         return table
 
-
     def check_win(self, table, user, start_points, end_points):
         table_cur = [[0 for q in line] for line in table]
         for point in start_points:
@@ -182,13 +188,13 @@ class Game():
             res = res or table_cur[point[0]][point[1]] == 1
         return res
 
-
     def dfs(self, table_cur, table, start, user):
         stack = [start]
         while len(stack) != 0:
             point = stack[-1]
             del stack[-1]
-            if table[point[0]][point[1]][1] == user and table_cur[point[0]][point[1]] == 0:
+            if (table[point[0]][point[1]][1] == user or table[point[0]][point[1]][1] == 2) \
+                    and table_cur[point[0]][point[1]] == 0:
                 table_cur[point[0]][point[1]] = 1
                 for i in self.get_neibor(table, point[0], point[1]):
                     stack.append(i)
