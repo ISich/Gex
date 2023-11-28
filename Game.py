@@ -65,6 +65,10 @@ class Game():
                         turn *= -1
                         turn_time = pygame.time.get_ticks()
             if pygame.time.get_ticks() - turn_time > self.time:
+                if turn == 1:
+                    winner = "2 игрок"
+                else:
+                    winner = "1 игрок"
                 run = False
 
             self.window.fill((255, 255, 255))
