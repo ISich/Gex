@@ -11,7 +11,7 @@ class Menu():
 
     def start_menu(self, window):
         window.resizable(False, False)
-        window.geometry("350x350")
+        window.geometry("350x400")
         window.title("Gex")
         window.grab_set()
 
@@ -20,32 +20,48 @@ class Menu():
         label = Label(window, text=text, font=("Roboto", 20, "bold"))
         label.pack(side=TOP, pady=10)
 
-        entry = Entry()
-        entry.pack(side=TOP, pady=10)
+        label1 = Label(window, text="Размер поля", font=("Roboto", 10,))
+        label1.pack(side=TOP, pady=5)
+
+        entry1 = Entry()
+        entry1.insert(END, "5")
+        entry1.pack(side=TOP, pady=0)
 
         player1_button = Button(window, text="1 игрок", font=("Roboto", 14), width=16,
-                               command=lambda: self.check_entry(entry.get(), window, True))
+                               command=lambda: self.check_entry1(entry1.get(), window, True))
         player1_button.pack(side=TOP, pady=10)
 
+        label2 = Label(window, text="Количество игроков", font=("Roboto", 10,))
+        label2.pack(side=TOP, pady=5)
+        entry2 = Entry()
+        entry2.insert(END, "2")
+        entry2.pack(side=TOP, pady=0)
+
         player2_button = Button(window, text="2 игрока", font=("Roboto", 14), width=16,
-                                command=lambda: self.check_entry(entry.get(), window, False))
+                                command=lambda: self.check_entry2(entry1.get(), entry2.get(), window, False))
         player2_button.pack(side=TOP, pady=10)
 
         result_button = Button(window, text="Таблица рекордов", font=("Roboto", 14), width=16,
                                command=lambda: self.__show_result())
         result_button.pack(side=TOP, pady=10)
 
-    def check_entry(self, value, window, bot):
+    def check_entry1(self, value, window, bot):
         if value.isdigit():
             value = int(value)
             if value > 0 and value % 2 == 1:
-                self.start_game(window, value, bot)
+                self.start_game(window, value, 2, bot)
         return
 
+    def check_entry2(self, value1, value2, window, bot):
+        if value1.isdigit() and value2.isdigit():
+            value1, value2 = int(value1), int(value2)
+            if value1 > 0 and value1 % 2 == 1 and value2 >= 2:
+                self.start_game(window, value1, value2, bot)
+        return
 
-    def start_game(self, window, size, bot=False):
+    def start_game(self, window, size, players, bot=False):
         self.close_window(window)
-        game = Game(size, bot)
+        game = Game(size, players, bot)
 
     def __show_result(self):
         scores = []

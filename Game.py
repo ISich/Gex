@@ -6,14 +6,15 @@ import Menu as My_menu
 
 
 class Game():
-    def __init__(self, table_size, bot):
+    def __init__(self, table_size, players, bot):
         pygame.init()
         table_size = int(table_size)
         self.bot = bot
+        self.players = players
         self.x_size = 500
         self.y_size = 700
         self.table_size = table_size
-        self.hexagon_size = 30 - int(max(table_size - 7, 0) * 2.5)
+        self.hexagon_size = max(30 - int(max(table_size - 7, 0) * 2.5), 6)
         self.window = pygame.display.set_mode((self.x_size, self.y_size), pygame.RESIZABLE)
         self.time = 5000
         pygame.display.set_caption("Gex")
@@ -31,6 +32,7 @@ class Game():
         turn = 1
         turn_time = pygame.time.get_ticks()
         winner = "Никто не"
+        user = 1
         while run:
             for event in pygame.event.get():
                 res = [-1, -1]
@@ -63,6 +65,11 @@ class Game():
                             self.update_scores(turn, self.bot)
                             run = False
                         turn *= -1
+                        user += 1
+                        if user == self.players and self.players % 2 == 1:
+                            turn = -1
+                        if user > self.players:
+                            user = 1
                         turn_time = pygame.time.get_ticks()
             if pygame.time.get_ticks() - turn_time > self.time:
                 if turn == 1:
@@ -72,6 +79,20 @@ class Game():
                 run = False
 
             self.window.fill((255, 255, 255))
+            self.draw_hexagon(self.window, (255 * (turn == -1), 0, 255 * (turn == 1)), (50, 50), 40)
+
+            font1 = pygame.font.SysFont('', 30)
+            text1 = font1.render(str('{0:.2f}'.format(5 - ((pygame.time.get_ticks() - turn_time)//100)/10)), True, (0, 0, 0))
+            textRect1 = text1.get_rect()
+            textRect1.center = (50, 50)
+            self.window.blit(text1, textRect1)
+
+            font2 = pygame.font.SysFont('_', 30)
+            text2 = font2.render(str(user) + " игрок", True, (0, 0, 0))
+            textRect2 = text2.get_rect()
+            textRect2.center = (50, 100)
+            self.window.blit(text2, textRect2)
+
             self.draw_hexagons(self.window, self.table.table, self.hexagon_size+20)
             pygame.display.flip()
         pygame.quit()
